@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 
 import "./App.css";
 
+/* the coordinates of the center of the United States */
+const LONG = "-103.771556";
+const LAT = "44.967243";
+
 function App() {
   const [userAddress, setUserAddress] = useState({
     address: "",
@@ -12,6 +16,7 @@ function App() {
 
   // const [userCoordinates, setUserCoordinates] = useState(null);
   const [userCoordinates, setUserCoordinates] = useState({ userLong: "", userLat: "" });
+  const [userMatchedAddress, setUserMatchedAddress] = useState("");
 
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -19,15 +24,26 @@ function App() {
   const { address, city, state, zip } = userAddress;
   const { userLong, userLat } = userCoordinates;
 
-  const LONG = "-103.771556";
-  const LAT = "44.967243";
-
   useEffect(() => {
     window.navigator.geolocation.getCurrentPosition(
       position => setUserCoordinates({ userLong: position.coords.longitude, userLat: position.coords.latitude }),
       err => console.log(err)
     );
   }, []);
+
+  let currentUserQuadrant = `${userLat > LAT ? "North" : "South"} ${userLong > LONG ? "East" : "West"}`;
+
+  let cardBgColor;
+
+  if (currentUserQuadrant === "North West") {
+    cardBgColor = "#6A6C34";
+  } else if (currentUserQuadrant === "South West") {
+    cardBgColor = "#B16238";
+  } else if (currentUserQuadrant === "North East") {
+    cardBgColor = "#99507F";
+  } else if (currentUserQuadrant === "South East") {
+    cardBgColor = "#4294B5";
+  }
 
   const onChange = e => {
     setUserAddress({
@@ -50,15 +66,34 @@ function App() {
     setLoading(true);
 
     fetch(
-      `https://geocoding.geo.census.gov/geocoder/locations/address?street=${address}&city=${city}&state=${state}&zip=${zip}&benchmark=2020&format=json`,
+      // `https://geocoding.geo.census.gov/geocoder/locations/address?street=${address}&city=${city}&state=${state}&zip=${zip}&benchmark=2020&format=json`
+
+      `https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=${address.replaceAll(
+        " ",
+        "+"
+      )}+${city.replaceAll(" ", "+")}+${state.replaceAll(" ", "+")}+${zip}&benchmark=4&format=jsonp`,
       {
         method: "GET",
         mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
     )
-      .then(res => res.json())
+      .then(res => {
+        // checking whether the content type is correct
+        const contentType = res.headers.get("content-type");
+        console.log("contentType", contentType);
+
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new TypeError("Oops, we haven't got JSON!");
+        }
+        return res.json();
+      })
       .then(data => {
+        console.log(data);
         // setUserCoordinate(data.result.addressMatches[0].coordinates);
+        // setUserMatchedAddress(data.result.addressMatches[0].matchedAddress)
       })
       .catch(err => {
         setError(true);
@@ -66,7 +101,7 @@ function App() {
       })
       .finally(() => setLoading(false));
 
-    setUserAddress({ address: "", city: "", state: "", zip: "" });
+    // setUserAddress({ address: "", city: "", state: "", zip: "" });
   };
 
   const renderAddress = () => {
@@ -151,13 +186,16 @@ function App() {
         </button>
       </form>
 
-      <section className="container__section">
+      <section className="container__section" style={{ backgroundColor: cardBgColor }}>
         <div>
-          <h2 className="container__heading">
-            {userLat > LAT ? "North" : "South"} {userLong > LONG ? "East" : "West"}
-          </h2>
+          <h2 className="container__heading">{currentUserQuadrant}</h2>
         </div>
-        <div className="container__address">{renderAddress()}</div>
+        <div className="container__address">
+          {
+            renderAddress()
+            // {userMatchedAddress}
+          }
+        </div>
       </section>
     </div>
   );
