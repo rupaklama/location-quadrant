@@ -1,0 +1,32 @@
+{
+  "result": {
+    "input": {},
+    "addressMatches": [
+      {
+        "tigerLine": {
+          "side": "L",
+          "tigerLineId": "59602044"
+        },
+        "coordinates": {
+          "x": -74.08539941727933,
+          "y": 40.720878162577456
+        },
+        "addressComponents": {
+          "zip": "07304",
+          "streetName": "LEXINGTON",
+          "preType": "",
+          "city": "JERSEY CITY",
+          "preDirection": "",
+          "suffixDirection": "",
+          "fromAddress": "129",
+          "state": "NJ",
+          "suffixType": "AVE",
+          "toAddress": "223",
+          "suffixQualifier": "",
+          "preQualifier": ""
+        },
+        "matchedAddress": "207 LEXINGTON AVE, JERSEY CITY, NJ, 07304"
+      }
+    ]
+  }
+}

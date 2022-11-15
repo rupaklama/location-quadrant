@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 
 import "./App.css";
 
+import data from "./mockData.json";
+
 /* the coordinates of the center of the United States */
 const LONG = "-103.771556";
 const LAT = "44.967243";
@@ -14,9 +16,11 @@ function App() {
     zip: "",
   });
 
-  // const [userCoordinates, setUserCoordinates] = useState(null);
-  const [userCoordinates, setUserCoordinates] = useState({ userLong: "", userLat: "" });
-  const [userMatchedAddress, setUserMatchedAddress] = useState("");
+  // const [userCoordinates, setUserCoordinates] = useState({ userLong: "", userLat: "" });
+  // const [userMatchedAddress, setUserMatchedAddress] = useState("");
+
+  const [userCoordinates, setUserCoordinates] = useState(data?.result?.addressMatches[0]?.coordinates);
+  const [userMatchedAddress] = useState(data?.result?.addressMatches[0]?.matchedAddress);
 
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -92,8 +96,8 @@ function App() {
       })
       .then(data => {
         console.log(data);
-        // setUserCoordinate(data.result.addressMatches[0].coordinates);
-        // setUserMatchedAddress(data.result.addressMatches[0].matchedAddress)
+        // setUserCoordinate(data?.result?.addressMatches[0]?.coordinates);
+        // setUserMatchedAddress(data?.result?.addressMatches[0]?.matchedAddress)
       })
       .catch(err => {
         setError(true);
@@ -101,21 +105,7 @@ function App() {
       })
       .finally(() => setLoading(false));
 
-    // setUserAddress({ address: "", city: "", state: "", zip: "" });
-  };
-
-  const renderAddress = () => {
-    if (address && city && state && zip) {
-      return (
-        <>
-          <p>{address}</p>
-          <p>{city}</p>
-          <p>
-            {state}, {zip}
-          </p>
-        </>
-      );
-    }
+    setUserAddress({ address: "", city: "", state: "", zip: "" });
   };
 
   if (loading) return <h4>Loading...</h4>;
@@ -190,12 +180,7 @@ function App() {
         <div>
           <h2 className="container__heading">{currentUserQuadrant}</h2>
         </div>
-        <div className="container__address">
-          {
-            renderAddress()
-            // {userMatchedAddress}
-          }
-        </div>
+        <div className="container__address">{`${userMatchedAddress}`}</div>
       </section>
     </div>
   );
